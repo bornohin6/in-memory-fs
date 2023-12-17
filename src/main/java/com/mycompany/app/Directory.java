@@ -57,20 +57,20 @@ public class Directory extends Node {
 				return (Directory)n;
 			}
 			else {
-				throw new Exception("File exists");		
+				throw new Exception("A file with name \"" + name + "\" already exists under " + getPath());		
 			}
 		}
 		
-		n = new Directory(name, this);
-		content.put(name, n);
+		Directory d = new Directory(name, this);
+		content.put(name, d);
 		logger.info("Directory created {}", name);
-		return (Directory)n;
+		return d;
 	}
 	
 	public void touch(String name) {
 		Node n = content.get(name);
 		if(n != null) {
-			logger.info("There is a already a file named {}", name);
+			logger.info("There is a already a file/directory named {}", name);
 			return;
 		}
 		n = new File(name, this);

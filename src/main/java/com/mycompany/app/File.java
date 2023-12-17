@@ -21,6 +21,7 @@ public class File extends Node {
 
 	@Override
 	public String display() {
+		// remove the trailing '/'
 		return getPath().replaceAll("/+$", "");
 	}
 	

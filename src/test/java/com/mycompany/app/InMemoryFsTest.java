@@ -28,7 +28,7 @@ public class InMemoryFsTest
 			Assertions.assertEquals(fs.getCurrentDir(), "/");
 			ls = fs.listDirectory("/");
 			Assertions.assertEquals(ls.size(), 0);
-			
+
 			fs.createDirectory("/a");
 			ls = fs.listDirectory("/");
 			Assertions.assertEquals(ls.size(), 1);
@@ -45,19 +45,19 @@ public class InMemoryFsTest
 			fs.createDirectory("/b");
 			ls = fs.listDirectory("/");
 			Assertions.assertEquals(ls.size(), 2);
-			
+
 			fs.createDirectory("/a"); // duplicate directory is ok
 			ls = fs.listDirectory("/");
 			Assertions.assertEquals(ls.size(), 2);
 
-			
+
 			fs.createDirectory("b");
 			fs.changeDir("b");
 			Assertions.assertEquals(fs.getCurrentDir(), "/a/b/");
 
 			ls = fs.listDirectory("/a");
 			Assertions.assertEquals(ls.size(), 1);
-			
+
 			fs.changeDir("/");
 			Assertions.assertEquals(fs.getCurrentDir(), "/");
 
@@ -93,7 +93,7 @@ public class InMemoryFsTest
 		} catch(Exception e) {
 		}    	
 	}
-	
+
 	@Test
 	public void testFileContent() {
 		InMemoryFS fs = new InMemoryFS();
@@ -111,7 +111,7 @@ public class InMemoryFsTest
 			Assertions.assertTrue(false);
 		}
 	}
-	
+
 	@Test
 	public void testFileContentNegative() {
 		InMemoryFS fs = new InMemoryFS();
@@ -121,7 +121,7 @@ public class InMemoryFsTest
 			Assertions.assertTrue(false);
 		} catch(Exception e) {
 		}
-		
+
 		// append to directory
 		try {
 			fs.createFile("/a/b");
@@ -130,7 +130,7 @@ public class InMemoryFsTest
 		} catch(Exception e) {
 		}
 	}
-	
+
 	@Test
 	public void testRemoval() {
 		InMemoryFS fs = new InMemoryFS();
@@ -141,15 +141,15 @@ public class InMemoryFsTest
 			Assertions.assertEquals(ls.size(), 1);
 			fs.appendFile("hello", "/a");
 			Assertions.assertEquals(fs.displayFile("/a"), "hello");
-			
+
 			fs.removeFile("/a");
 			ls = fs.listDirectory("/");
 			Assertions.assertEquals(ls.size(), 0);
-			
+
 			fs.createFile("/c/d");
 			ls = fs.listDirectory("/");
 			Assertions.assertEquals(ls.size(), 1);
-			
+
 			fs.removeDir("c");
 			ls = fs.listDirectory("/");
 			Assertions.assertEquals(ls.size(), 0);			
@@ -157,7 +157,7 @@ public class InMemoryFsTest
 			Assertions.assertTrue(false);
 		}
 	}
-	
+
 	@Test
 	public void testRemovalNegative() {
 		InMemoryFS fs = new InMemoryFS();
@@ -170,7 +170,7 @@ public class InMemoryFsTest
 			Assertions.assertTrue(false);
 		} catch(Exception e) {
 		}
-		
+
 		try {
 			fs.createFile("/c/d");
 			ls = fs.listDirectory("c/");
@@ -180,5 +180,73 @@ public class InMemoryFsTest
 		} catch(Exception e) {
 		}
 	}
+	
+	@Test
+	public void testMove() {
+		InMemoryFS fs = new InMemoryFS();
+		List<String> ls;
+		try {
+			fs.createFile("/a");
+			ls = fs.listDirectory("/");
+			Assertions.assertEquals(ls.size(), 1);
+			fs.appendFile("hello", "/a");
+			Assertions.assertEquals(fs.displayFile("/a"), "hello");
+
+			fs.createDirectory("/b");
+			ls = fs.listDirectory("/");
+			Assertions.assertEquals(ls.size(), 2);
+			
+			fs.moveFile("/a", "b");
+			ls = fs.listDirectory("/");
+			Assertions.assertEquals(ls.size(), 1);
+			ls = fs.listDirectory("/b");
+			Assertions.assertEquals(ls.size(), 1);
+			Assertions.assertEquals(fs.displayFile("/b/a"), "hello");
+
+			
+			fs.createDirectory("/c/d");
+			fs.moveDir("/b", "/c");
+			ls = fs.listDirectory("/");
+			Assertions.assertEquals(ls.size(), 1);
+			ls = fs.listDirectory("/c");
+			Assertions.assertEquals(ls.size(), 2);
+			Assertions.assertEquals(fs.displayFile("/c/b/a"), "hello");
+		} catch(Exception e) {
+			Assertions.assertTrue(false);
+		}
+	}
+	
+	@Test
+	public void testCopyFile() {
+		InMemoryFS fs = new InMemoryFS();
+		List<String> ls;
+		try {
+			fs.createFile("/a");
+			ls = fs.listDirectory("/");
+			Assertions.assertEquals(ls.size(), 1);
+			fs.appendFile("hello", "/a");
+			Assertions.assertEquals(fs.displayFile("/a"), "hello");
+
+			fs.createDirectory("/b");
+			ls = fs.listDirectory("/");
+			Assertions.assertEquals(ls.size(), 2);
+			
+			fs.copyFile("/a", "b");
+			ls = fs.listDirectory("/");
+			Assertions.assertEquals(ls.size(), 2);
+			ls = fs.listDirectory("/b");
+			Assertions.assertEquals(ls.size(), 1);
+			Assertions.assertEquals(fs.displayFile("/b/a"), "hello");
+
+			fs.removeFile("/a");
+			ls = fs.listDirectory("/");
+			Assertions.assertEquals(ls.size(), 1);
+			Assertions.assertEquals(fs.displayFile("/b/a"), "hello");
+		} catch(Exception e) {
+			Assertions.assertTrue(false);
+		}
+
+	}
+
 
 }
