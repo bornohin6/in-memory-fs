@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.mycompany.app</groupId>
-  <artifactId>my-app</artifactId>
+  <artifactId>in-memory-fs</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>my-app</name>
+  <name>in-memory-fs</name>
   <url>https://maven.apache.org</url>
   <dependencies>
     <dependency>
@@ -13,6 +13,11 @@
       <artifactId>junit-jupiter-api</artifactId>
       <version>5.10.1</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.22.0</version> <!-- Specify the desired Log4j version -->
     </dependency>
   </dependencies>
   <properties>
@@ -39,7 +44,7 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
-              <mainClass>com.mycompany.app.App</mainClass>
+              <mainClass>com.mycompany.app.CommandLineMain</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -67,6 +72,23 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-dependency-plugin</artifactId>
+    <version>2.8</version>
+    <executions>
+        <execution>
+             <id>copy-dependencies</id>
+             <phase>package</phase>
+             <goals>
+                 <goal>copy-dependencies</goal>
+             </goals>
+             <configuration>
+                 <outputDirectory>${project.build.directory}/lib</outputDirectory>
+             </configuration>
+        </execution>
+     </executions>
+</plugin>
     </plugins>
   </build>
 </project>
