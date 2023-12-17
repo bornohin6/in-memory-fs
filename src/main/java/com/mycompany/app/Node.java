@@ -26,11 +26,15 @@ public abstract class Node {
 		return parent;
 	}
 	
+	public void setParent(Node p) {
+		parent = p;
+	}	
+	
     public String getPath() {
         if (parent == null) {
             return "/";
         } else {
-            return parent.getPath() + "/" + getName();
+            return parent.getPath() + getName() + "/";
         }
     }
 }

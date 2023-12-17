@@ -1,86 +1,163 @@
 package com.mycompany.app;
 
+import java.util.List;
 
-/**
- * 
- * Inode: name, isDirectory, parent, permission, group?
- * File: write, read, rename, find, {content should be separate object with ref count to support soft/hard link}
- * Directory: write(create a new directory or file), read(pwd), chdir, list, remove, find, 
- * User: , Group: read, write
- * 
-● Change the current working directory. The working directory begins at '/'. You may traverse to a child directory or the parent.
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-● Get the current working directory. Returns the current working directory's path from the root to console. Example: ‘/school/homework’
-● Create a new directory. The current working directory is the parent.
-● Get the directory contents: Returns the children of the current working directory.
-Example: [‘math’, ‘history’, ‘spanish’]
-● Remove a directory. The target directory must be among the current working directory’s
-children.
-● Create a new file: Creates a new empty file in the current working directory.
-● Write file contents: Writes the specified contents to a file in the current working
-directory. All file contents will fit into memory.
-● Get file contents: Returns the content of a file in the current working directory.
-● Move a file: Move an existing file in the current working directory to a new location (in
-the same directory).
-● Find a file/directory: Given a filename, find all the files and directories within the current
-working directory that have exactly that name.
-
- */
 public class InMemoryFS {
-	/*
-	 * Needs to track currentDirectory, root
-	 * Implement chdir
-	 */
+	private static final Logger logger = LogManager.getLogger(InMemoryFS.class);
 	private Directory root, currentDir;
-	
-	private boolean isAbsolute(String name) {
-		return name.startsWith("/");
-    }
-	
-	private String getAbsolutePath(String name) {
-		if (isAbsolute(name)) {
-			return name;
-		}
-		
-		String currentPath = currentDir.getPath();
-		return currentPath + "/" + name;
-	}
-	
-	private Node findNode(String name) {
-		// check if absolute path or relative path
-		// if absolute path - start searching
-		return null;
-	}
 
 	public InMemoryFS() {
 		root = new Directory("", null);
 		currentDir = root;
 	}
 
+	private boolean isAbsolute(String name) {
+		return name.startsWith("/");
+    }
+	
+	public String getAbsolutePath(String name) {
+		if (isAbsolute(name)) {
+			return name;
+		}
+		
+		String currentPath = currentDir.getPath();
+		return currentPath + name;
+	}
+
 	public String getCurrentDir() {
 		return currentDir.getPath();
 	}
 
-	public boolean createDirectory(String name) {
-		// get an absolute path
-		// iterate over the names
+	public void createDirectory(String name) throws Exception {
 		String absolutePath = getAbsolutePath(name);
+		logger.info("Absolute path {}", absolutePath);
 		String[] pathComponents = absolutePath.split("/");
 		Directory prev = root;
-		try {
-			for (String component : pathComponents) {
-				prev = prev.mkdir(component);
+		for (int i = 1; i < pathComponents.length; i++) {
+			prev = prev.mkdir(pathComponents[i]);
+		}
+	}
+	
+	private void createFileInternal(String name) throws Exception {
+		String absolutePath = getAbsolutePath(name);
+		logger.info("Absolute path {}", absolutePath);
+		String[] pathComponents = absolutePath.split("/");
+		Directory prev = root;
+		int i = 1;
+		while(i < pathComponents.length - 1) {
+			prev = prev.mkdir(pathComponents[i++]);
+		}
+		if(prev.contains(pathComponents[i])) {
+			throw new Exception(prev.getPath() + " already contains a node named " + name);
+		}
+		prev.touch(pathComponents[i]);
+	}
+	
+	public void createFile(String name) throws Exception {
+		createFileInternal(name);
+	}
+	
+	private Directory findDirectory(String name) throws Exception {
+		String absolutePath = getAbsolutePath(name);
+		logger.info("Absolute path {}", absolutePath);
+		
+		String[] pathComponents = absolutePath.split("/");
+		Directory prev = root;
+		
+		for (int i = 1; i < pathComponents.length; i++) {
+			Node child = prev.getChild(pathComponents[i]);
+			if (!child.isDirectory()) {
+				throw new Exception(child.display() + " is not a directory");
 			}
-		} catch(Exception e) {
-			System.out.println(e.toString());
+			prev = (Directory) child;
 		}
 
-		return true;
+		return prev;
+	}
+	
+	private File findFile(String name) throws Exception {
+		String absolutePath = getAbsolutePath(name);
+		logger.info("Absolute path {}", absolutePath);
+		
+		String[] pathComponents = absolutePath.split("/");
+		Directory prev = root;
+		int i;
+		for (i = 1; i < pathComponents.length - 1; i++) {
+			Node child = prev.getChild(pathComponents[i]);
+			if (!child.isDirectory()) {
+				throw new Exception(child.display() + " is not a directory");
+			}
+			prev = (Directory) child;
+		}
+		
+		Node file = prev.getChild(pathComponents[i]);
+		if(file == null) {
+			throw new Exception(pathComponents[i] + " could not be found");
+		}
+		
+		if(file.isDirectory()) {
+			throw new Exception(pathComponents[i] + " is not a file");
+		}
+		
+		return (File)file;
+	}
+	
+	public void appendFile(String text, String name) throws Exception {
+		File file = findFile(name);
+		file.getContent().append(text);
+	}
+	
+	public String displayFile(String name) throws Exception {
+		File file = findFile(name);
+		return file.getContent().getText();
+	}
+	
+	public void removeFile(String name) throws Exception {
+		File file = findFile(name);
+		Directory parent = (Directory)file.getParent();
+		parent.remove(file.getName());
+	}
+	
+	public void moveFile(String src, String dest) throws Exception {
+		File file = findFile(src);
+		Directory parent = (Directory)file.getParent();
+		parent.remove(file.getName());
+		
+		Directory dir = findDirectory(dest);
+		dir.add(file);
 	}
 
-	public boolean changeDirectory(String name) {
-		// TODO need to check for whole path
-		currentDir.chdir(name);
-		return true;
+	public void copyFile(String src, String dest) throws Exception {
+		File file = findFile(src);		
+		Directory dir = findDirectory(dest);
+		dir.copy(file);
+	}
+	
+	public void moveDir(String src, String dest) throws Exception {
+		Directory sdir = findDirectory(src);
+		Directory parent = (Directory)sdir.getParent();
+		parent.remove(sdir.getName());
+		
+		Directory ddir = findDirectory(dest);
+		ddir.add(sdir);
+	}
+	
+	public void removeDir(String name) throws Exception {
+		Directory dir = findDirectory(name);
+		Directory parent = (Directory)dir.getParent();
+		parent.remove(dir.getName());
+	}
+	
+	public void changeDir(String name) throws Exception {
+		currentDir = findDirectory(name);
+		logger.info("Directory changed to {}", currentDir.getPath());
+	}
+	
+	public List<String> listDirectory(String name) throws Exception {
+		Directory dir = findDirectory(name);
+		return dir.contents();
 	}
 }
