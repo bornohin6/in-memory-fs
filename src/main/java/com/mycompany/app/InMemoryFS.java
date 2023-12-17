@@ -135,7 +135,13 @@ public class InMemoryFS {
 		Directory dir = findDirectory(dest);
 		dir.copy(file);
 	}
-	
+
+	public void copyDirectory(String src, String dest) throws Exception {
+		Directory sdir = findDirectory(src);		
+		Directory ddir = findDirectory(dest);
+		ddir.copy(sdir);
+	}
+
 	public void moveDir(String src, String dest) throws Exception {
 		Directory sdir = findDirectory(src);
 		Directory parent = (Directory)sdir.getParent();

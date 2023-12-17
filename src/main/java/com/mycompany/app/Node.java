@@ -2,8 +2,8 @@ package com.mycompany.app;
 
 public abstract class Node {
 
-	private String name;
-	private Node parent;
+	protected String name;
+	protected Node parent;
 	
 
 	public Node(String name, Node parent) {
@@ -13,6 +13,7 @@ public abstract class Node {
 
 	public abstract boolean isDirectory();
 	public abstract String display();
+	public abstract Node clone(Node parent);
 	
 	public String getName() {
 		return name;

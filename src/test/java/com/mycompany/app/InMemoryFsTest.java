@@ -245,8 +245,50 @@ public class InMemoryFsTest
 		} catch(Exception e) {
 			Assertions.assertTrue(false);
 		}
-
 	}
 
+	@Test
+	public void testCopyDir() {
+		InMemoryFS fs = new InMemoryFS();
+		List<String> ls;
+		try {
+			fs.createFile("/a/b/c/f1");
+			ls = fs.listDirectory("/");
+			Assertions.assertEquals(ls.size(), 1);
+			fs.appendFile("hello1", "/a/b/c/f1");
+			fs.createFile("/a/b/f2");
+			fs.appendFile("hello2", "/a/b/f2");
+			ls = fs.listDirectory("/a/b");
+			Assertions.assertEquals(ls.size(), 2);
+			Assertions.assertEquals(fs.displayFile("/a/b/c/f1"), "hello1");
+			Assertions.assertEquals(fs.displayFile("/a/b/f2"), "hello2");
+			
+			fs.createFile("/a/d1/f3");
+			fs.appendFile("hello3", "/a/d1/f3");
+			ls = fs.listDirectory("/a/d1");
+			Assertions.assertEquals(ls.size(), 1);
+			Assertions.assertEquals(fs.displayFile("/a/d1/f3"), "hello3");
+			
+			fs.copyDirectory("/a/b", "/a/d1");			
+			ls = fs.listDirectory("/a");
+			Assertions.assertEquals(ls.size(), 2);
+
+			ls = fs.listDirectory("/a/d1");
+			Assertions.assertEquals(ls.size(), 2);
+			
+			// nothing changed for the old files
+			Assertions.assertEquals(fs.displayFile("/a/b/c/f1"), "hello1");
+			Assertions.assertEquals(fs.displayFile("/a/b/f2"), "hello2");
+			Assertions.assertEquals(fs.displayFile("/a/d1/f3"), "hello3");
+			
+			// can read the coopied files
+			Assertions.assertEquals(fs.displayFile("/a/d1/b/c/f1"), "hello1");
+			Assertions.assertEquals(fs.displayFile("/a/d1/b/f2"), "hello2");
+
+		} catch(Exception e) {
+			Assertions.assertTrue(false);
+		}
+
+	}
 
 }

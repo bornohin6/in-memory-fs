@@ -28,4 +28,11 @@ public class File extends Node {
 	public TextContent getContent() {
 		return content;
 	}
+
+	@Override
+	public Node clone(Node parent) {
+		File nf = new File(name, parent);
+		nf.getContent().append(content.getText());
+		return nf;
+	}
 }

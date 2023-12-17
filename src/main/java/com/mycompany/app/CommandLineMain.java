@@ -13,11 +13,6 @@ import org.apache.logging.log4j.Logger;
  * Directory: write(create a new directory or file), read(pwd), chdir, list, remove, find, 
  * User: , Group: read, write
  * 
-● Move a file: Move an existing file in the current working directory to a new location (in
-the same directory).
-● Find a file/directory: Given a filename, find all the files and directories within the current
-working directory that have exactly that name.
-
  */
 public class CommandLineMain {
 
@@ -44,6 +39,25 @@ public class CommandLineMain {
 	CommandLineMain() {
 		fs = new InMemoryFS();
 	}
+	
+    private static void help() {
+        System.out.println("Available commands:");
+        System.out.println("  pwd    - Print the current working directory");
+        System.out.println("  ls     - List directory contents");
+        System.out.println("  cd     - Change the current directory");
+        System.out.println("  mkdir  - Create directories");
+        System.out.println("  touch  - Create an empty file");
+        System.out.println("  append - Append text to a file");
+        System.out.println("  cat    - Display file contents");
+        System.out.println("  rm     - Remove a file");
+        System.out.println("  rm-r   - Remove a directory");
+        System.out.println("  mv     - Move files");
+        System.out.println("  mv-r   - Move directories");
+        System.out.println("  cp     - Copy files");
+        System.out.println("  cp-r   - Copy directories");
+        System.out.println("  exit   - Quit the program");
+        System.out.println("  help   - Display this help message");
+    }
 	
 	private void createDirectory(String directoryName) {
 		try {
@@ -108,7 +122,15 @@ public class CommandLineMain {
 			System.out.println(e.toString());
 		}			
 	}
-	
+
+	private void copyDirectory(String src, String dest) {
+		try {
+			fs.copyDirectory(src, dest);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}			
+	}
+
 	private void moveDir(String src, String dest) {
 		try {
 			fs.moveDir(src, dest);
@@ -140,15 +162,14 @@ public class CommandLineMain {
 			System.out.println(e.toString());
 		}
 	}
-
+	
 	public void run() {
 		Scanner scanner = new Scanner(System.in);
 
 		System.out.println("Welcome to the In Memory Filesystem!");
 
 		while (true) {
-			// TODO add help
-			System.out.print("Enter a command (type 'exit' to quit): ");
+			System.out.print("Enter a command (type 'help' for help, 'exit' to quit): ");
 			String input = scanner.nextLine().trim();
 
 			logger.info("You entered: {}", input);
@@ -162,8 +183,12 @@ public class CommandLineMain {
             String command = parts[0].toLowerCase();
 
 			switch (command) {
-			case LS:			
-				listDirectory(parts);
+			case LS:	
+				if (parts.length <= 2) {
+					listDirectory(parts);
+				} else {
+					System.out.println("Usage: ls [<directoryName>]");
+				}
 				break;
 			case MKDIR:
                 if (parts.length == 2) {
@@ -237,9 +262,15 @@ public class CommandLineMain {
                     System.out.println("Usage: cp <srcFileName> <destDirName>");
                 }				
 				break;
-				
+			case CPR:
+                if (parts.length == 3) {
+                    copyDirectory(parts[1], parts[2]);
+                } else {
+                    System.out.println("Usage: cp <srcDirName> <destDirName>");
+                }				
+				break;
 			case HELP:
-				// help()
+				help();
 				break;				
 			case EXIT:
 				System.out.println("Goodbye!");

@@ -30,6 +30,20 @@ public class Directory extends Node {
 		return getPath();
 	}
 	
+	@Override
+	public Node clone(Node parent) {
+		Directory np = new Directory(name, parent);
+		if (content.isEmpty()) {
+			return np;
+		}
+		for(String s : content.keySet()) {
+			Node oldC = content.get(s);
+			Node newC = oldC.clone(np);
+			np.add(newC);
+		}
+		return np;
+	}
+	
 	public void add(Node n) {
 		logger.info("Adding node {}", n.getName());
 		
@@ -82,10 +96,8 @@ public class Directory extends Node {
 		content.remove(n.getName());
 	}
 	
-	public void copy(File f) {
-		File nf = new File(f.getName(), this);
-		nf.getContent().append(f.getContent().getText());
-		content.put(f.getName(), nf);
+	public void copy(Node n) {
+		content.put(n.getName(), n.clone(this));
 	}
 	
 	public List<String> contents() {
