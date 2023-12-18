@@ -248,6 +248,27 @@ public class InMemoryFsTest
 	}
 
 	@Test
+	public void testCopyFileNegative() {
+		InMemoryFS fs = new InMemoryFS();
+		List<String> ls;
+		try {
+			fs.createFile("/a/b/f1");
+			ls = fs.listDirectory("/");
+			Assertions.assertEquals(ls.size(), 1);
+			fs.createFile("/a/b/f1/f2");
+			Assertions.assertTrue(false);
+		} catch(Exception e) {
+		}
+		
+		try {
+			fs.appendFile("hello", "/a/b/f2");
+			Assertions.assertTrue(false);
+		} catch(Exception e) {
+		}
+
+	}
+
+	@Test
 	public void testCopyDir() {
 		InMemoryFS fs = new InMemoryFS();
 		List<String> ls;

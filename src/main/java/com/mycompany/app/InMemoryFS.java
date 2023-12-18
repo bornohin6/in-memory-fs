@@ -148,7 +148,7 @@ public class InMemoryFS {
 		
 		String spath = sdir.getPath();
 		String dpath = ddir.getPath();
-		
+		// check for recursive move
 		if (dpath.startsWith(spath)) {
 			throw new Exception("Can't move parent directory " + spath + " inside child directory " + dpath);
 		}

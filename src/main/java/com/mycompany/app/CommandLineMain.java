@@ -6,14 +6,6 @@ import java.util.Scanner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * 
- * Inode: name, isDirectory, parent, permission, group?
- * File: write, read, rename, find, {content should be separate object with ref count to support soft/hard link}
- * Directory: write(create a new directory or file), read(pwd), chdir, list, remove, find, 
- * User: , Group: read, write
- * 
- */
 public class CommandLineMain {
 
 	private final String PWD = "pwd";
