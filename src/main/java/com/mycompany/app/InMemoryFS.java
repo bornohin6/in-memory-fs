@@ -144,10 +144,18 @@ public class InMemoryFS {
 
 	public void moveDir(String src, String dest) throws Exception {
 		Directory sdir = findDirectory(src);
+		Directory ddir = findDirectory(dest);
+		
+		String spath = sdir.getPath();
+		String dpath = ddir.getPath();
+		
+		if (dpath.startsWith(spath)) {
+			throw new Exception("Can't move parent directory " + spath + " inside child directory " + dpath);
+		}
+		
 		Directory parent = (Directory)sdir.getParent();
 		parent.remove(sdir.getName());
 		
-		Directory ddir = findDirectory(dest);
 		ddir.add(sdir);
 	}
 	

@@ -288,7 +288,20 @@ public class InMemoryFsTest
 		} catch(Exception e) {
 			Assertions.assertTrue(false);
 		}
-
+	}
+	
+	@Test
+	public void testCopyDirRecursive() {
+		InMemoryFS fs = new InMemoryFS();
+		List<String> ls;
+		
+		try {
+			fs.createDirectory("/a/b");
+			fs.moveDir("/a", "/a/b");
+			Assertions.assertTrue(false);
+		} catch(Exception e) {
+			// can't move parent inside child directory
+		}
 	}
 
 }
