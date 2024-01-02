@@ -2,6 +2,7 @@ package com.mycompany.app;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +22,7 @@ public class CommandLineMain {
 	private final String CP = "cp";
 	private final String CPR = "cp-r";
 	private final String RMR = "rm-r";
+	private final String FIND = "find";
 	private final String EXIT = "exit";
 	private final String HELP = "help";
 	
@@ -47,6 +49,7 @@ public class CommandLineMain {
         System.out.println("  mv-r   - Move directories");
         System.out.println("  cp     - Copy files");
         System.out.println("  cp-r   - Copy directories");
+        System.out.println("  find   - Find a file/directory within current directory");
         System.out.println("  exit   - Quit the program");
         System.out.println("  help   - Display this help message");
     }
@@ -155,6 +158,16 @@ public class CommandLineMain {
 		}
 	}
 	
+	private void findNode(String name) {
+		
+		try {
+			Set<String> res = fs.findNode(name);	
+			res.forEach(System.out::println);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		} 
+	}
+	
 	public void run() {
 		Scanner scanner = new Scanner(System.in);
 
@@ -260,6 +273,13 @@ public class CommandLineMain {
                 } else {
                     System.out.println("Usage: cp <srcDirName> <destDirName>");
                 }				
+				break;
+			case FIND:
+                if (parts.length == 2) {
+                    findNode(parts[1]);
+                } else {
+                    System.out.println("Usage: find <file/directory name>");
+                }
 				break;
 			case HELP:
 				help();

@@ -1,6 +1,7 @@
 package com.mycompany.app;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -173,5 +174,13 @@ public class InMemoryFS {
 	public List<String> listDirectory(String name) throws Exception {
 		Directory dir = findDirectory(name);
 		return dir.getChildren();
+	}
+	
+	public Set<String> findNode(String name) throws Exception {
+		Set<String> res = currentDir.findChildren(name);
+		if (res.isEmpty()) {
+			throw new Exception(name + " not found in " + currentDir.getPath());
+		}
+		return res;
 	}
 }

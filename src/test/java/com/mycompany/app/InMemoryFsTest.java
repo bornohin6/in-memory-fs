@@ -1,6 +1,7 @@
 package com.mycompany.app;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -314,7 +315,6 @@ public class InMemoryFsTest
 	@Test
 	public void testCopyDirRecursive() {
 		InMemoryFS fs = new InMemoryFS();
-		List<String> ls;
 		
 		try {
 			fs.createDirectory("/a/b");
@@ -322,6 +322,52 @@ public class InMemoryFsTest
 			Assertions.assertTrue(false);
 		} catch(Exception e) {
 			// can't move parent inside child directory
+		}
+	}
+
+	@Test
+	public void testfind() {
+		InMemoryFS fs = new InMemoryFS();
+		
+		try {
+			fs.createDirectory("/a/b/f");
+			fs.createDirectory("/a/b/c/f/d");
+			fs.createDirectory("/a/b/c/f/d/f");
+			fs.changeDir("/a/b");
+			Set<String> res = fs.findNode("f");
+			Assertions.assertEquals(res.size(), 3);
+			Assertions.assertTrue(res.contains("./f"));
+			Assertions.assertTrue(res.contains("./c/f"));
+			Assertions.assertTrue(res.contains("./c/f/d/f"));
+		} catch(Exception e) {
+		}
+	}
+
+	@Test
+	public void testfindFiles() {
+		InMemoryFS fs = new InMemoryFS();
+		
+		try {
+			fs.createDirectory("/a/b/f");
+			fs.createFile("/a/b/a");
+			Set<String> res = fs.findNode("a");
+			Assertions.assertEquals(res.size(), 2);
+			Assertions.assertTrue(res.contains("./a"));
+			Assertions.assertTrue(res.contains("./a/b/a"));
+		} catch(Exception e) {
+		}
+	}
+	
+	@Test
+	public void testfindNegative() {
+		InMemoryFS fs = new InMemoryFS();
+		
+		try {
+			fs.createDirectory("/a/b/f");
+			fs.createFile("/a/b/a");
+			fs.findNode("z");
+			Assertions.assertTrue(false);
+		} catch(Exception e) {
 		}
 	}
 

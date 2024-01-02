@@ -3,8 +3,10 @@ package com.mycompany.app;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -110,6 +112,26 @@ public class Directory extends Node {
 	public List<String> getChildren() {
 		List<String> res = new ArrayList<>(children.keySet());
 		Collections.sort(res);
+		return res;
+	}
+	
+	private void helper(Node n, String name, String buffer, Set<String> res) {		
+		if (!n.isDirectory()) {
+			return;
+		}
+		
+		Directory dir = (Directory)n;
+		for (Map.Entry<String, Node> child : dir.children.entrySet()) {
+			if (child.getKey().equals(name)) {
+				res.add(buffer + "/" + name);
+			}
+			helper(child.getValue(), name, buffer + "/" + child.getKey(), res);
+		}
+	}
+	
+	public Set<String> findChildren(String name) {
+		Set<String> res = new HashSet<>(); 
+		helper(this, name, ".", res);
 		return res;
 	}
 }
