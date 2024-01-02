@@ -70,7 +70,7 @@ public class InMemoryFS {
 		for (int i = 1; i < pathComponents.length; i++) {
 			Node child = prev.getChild(pathComponents[i]);
 			if (!child.isDirectory()) {
-				throw new Exception(child.display() + " is not a directory");
+				throw new Exception(child.printPath() + " is not a directory");
 			}
 			prev = (Directory) child;
 		}
@@ -88,7 +88,7 @@ public class InMemoryFS {
 		for (i = 1; i < pathComponents.length - 1; i++) {
 			Node child = prev.getChild(pathComponents[i]);
 			if (!child.isDirectory()) {
-				throw new Exception(child.display() + " is not a directory");
+				throw new Exception(child.printPath() + " is not a directory");
 			}
 			prev = (Directory) child;
 		}
@@ -118,28 +118,28 @@ public class InMemoryFS {
 	public void removeFile(String name) throws Exception {
 		File file = findFile(name);
 		Directory parent = (Directory)file.getParent();
-		parent.remove(file.getName());
+		parent.removeChild(file.getName());
 	}
 	
 	public void moveFile(String src, String dest) throws Exception {
 		File file = findFile(src);
 		Directory parent = (Directory)file.getParent();
-		parent.remove(file.getName());
+		parent.removeChild(file.getName());
 		
 		Directory dir = findDirectory(dest);
-		dir.add(file);
+		dir.addChild(file);
 	}
 
 	public void copyFile(String src, String dest) throws Exception {
 		File file = findFile(src);		
 		Directory dir = findDirectory(dest);
-		dir.copy(file);
+		dir.addSubTree(file);
 	}
 
 	public void copyDirectory(String src, String dest) throws Exception {
 		Directory sdir = findDirectory(src);		
 		Directory ddir = findDirectory(dest);
-		ddir.copy(sdir);
+		ddir.addSubTree(sdir);
 	}
 
 	public void moveDir(String src, String dest) throws Exception {
@@ -154,15 +154,15 @@ public class InMemoryFS {
 		}
 		
 		Directory parent = (Directory)sdir.getParent();
-		parent.remove(sdir.getName());
+		parent.removeChild(sdir.getName());
 		
-		ddir.add(sdir);
+		ddir.addChild(sdir);
 	}
 	
 	public void removeDir(String name) throws Exception {
 		Directory dir = findDirectory(name);
 		Directory parent = (Directory)dir.getParent();
-		parent.remove(dir.getName());
+		parent.removeChild(dir.getName());
 	}
 	
 	public void changeDir(String name) throws Exception {
@@ -172,6 +172,6 @@ public class InMemoryFS {
 	
 	public List<String> listDirectory(String name) throws Exception {
 		Directory dir = findDirectory(name);
-		return dir.contents();
+		return dir.getChildren();
 	}
 }

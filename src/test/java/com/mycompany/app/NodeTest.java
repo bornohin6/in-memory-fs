@@ -43,7 +43,7 @@ class NodeTest {
 
 		Assertions.assertEquals(cdir.getName(), "c");
 		Assertions.assertEquals(cdir.getParent(), bdir);
-		Assertions.assertNotEquals(cdir.display(), "/b/c");
+		Assertions.assertNotEquals(cdir.printPath(), "/b/c");
 	}
 	
 	@Test

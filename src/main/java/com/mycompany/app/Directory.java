@@ -12,12 +12,12 @@ import org.apache.logging.log4j.Logger;
 
 public class Directory extends Node {
 
-	private Map<String, Node> content;
+	private Map<String, Node> children;
     private static final Logger logger = LogManager.getLogger(Directory.class);
 	
 	public Directory(String name, Node parent) {
 		super(name, parent);
-		content  = new HashMap<>();
+		children  = new HashMap<>();
 	}
 
 	@Override
@@ -26,44 +26,54 @@ public class Directory extends Node {
 	}
 	
 	@Override
-	public String display() {
+	public String printPath() {
 		return getPath();
 	}
 	
 	@Override
 	public Node clone(Node parent) {
-		Directory np = new Directory(name, parent);
-		if (content.isEmpty()) {
-			return np;
+		Directory dir = new Directory(name, parent);
+		if (children.isEmpty()) {
+			return dir;
 		}
-		for(String s : content.keySet()) {
-			Node oldC = content.get(s);
-			Node newC = oldC.clone(np);
-			np.add(newC);
+		for(String s : children.keySet()) {
+			Node oldChild = children.get(s);
+			Node newChild = oldChild.clone(dir);
+			dir.addChild(newChild);
 		}
-		return np;
+		return dir;
 	}
 	
-	public void add(Node n) {
-		logger.info("Adding node {}", n.getName());
+	/*
+	 * Adds a new child to the directory
+	 */
+	public void addChild(Node c) {
+		logger.info("Adding node {}", c.getName());
 		
-		content.put(n.getName(), n);
-		n.setParent(this);
+		children.put(c.getName(), c);
+		c.setParent(this);
+	}
+	
+	/*
+	 * Clones the entire subtree and adds it as a child
+	 */
+	public void addSubTree(Node n) {
+		children.put(n.getName(), n.clone(this));
 	}
 	
 	public boolean contains(String name) {
-		return content.containsKey(name);
+		return children.containsKey(name);
 	}
 
 	public Node getChild(String name) throws Exception {
-		if (!content.containsKey(name)) {
+		if (!children.containsKey(name)) {
 			throw new Exception(getPath() + " doesn't have any directory named " + name);
 		}
-		return content.get(name);
+		return children.get(name);
 	}
 
 	public Directory mkdir(String name) throws Exception {
-		Node n = content.get(name);
+		Node n = children.get(name);
 
 		if(n != null) {
 			if (n.isDirectory()) {
@@ -76,32 +86,29 @@ public class Directory extends Node {
 		}
 		
 		Directory d = new Directory(name, this);
-		content.put(name, d);
+		children.put(name, d);
 		logger.info("Directory created {}", name);
 		return d;
 	}
 	
 	public void touch(String name) {
-		Node n = content.get(name);
+		Node n = children.get(name);
 		if(n != null) {
 			logger.info("There is a already a file/directory named {}", name);
 			return;
 		}
 		n = new File(name, this);
-		content.put(name, n);
+		children.put(name, n);
 	}
 	
-	public void remove(String name) {
-		Node n = content.get(name);
-		content.remove(n.getName());
+	public void removeChild(String name) {
+		Node n = children.get(name);
+		children.remove(n.getName());
+		n.setParent(null);
 	}
 	
-	public void copy(Node n) {
-		content.put(n.getName(), n.clone(this));
-	}
-	
-	public List<String> contents() {
-		List<String> res = new ArrayList<>(content.keySet());
+	public List<String> getChildren() {
+		List<String> res = new ArrayList<>(children.keySet());
 		Collections.sort(res);
 		return res;
 	}

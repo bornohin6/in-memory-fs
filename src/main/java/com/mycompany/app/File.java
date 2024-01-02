@@ -20,7 +20,7 @@ public class File extends Node {
 	}
 
 	@Override
-	public String display() {
+	public String printPath() {
 		// remove the trailing '/'
 		return getPath().replaceAll("/+$", "");
 	}

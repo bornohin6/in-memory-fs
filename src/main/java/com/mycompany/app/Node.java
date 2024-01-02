@@ -5,14 +5,29 @@ public abstract class Node {
 	protected String name;
 	protected Node parent;
 	
-
+	/*
+	 * The file system is organized as an in-tree or parent pointer tree.
+	 * Each node either represents a file or a directory, and has a pointer
+	 * to a parent node except the root node.
+	 */
 	public Node(String name, Node parent) {
 		this.name = name;
 		this.parent = parent;
 	}
 
+	/*
+	 * Returns true if node is a directory
+	 */
 	public abstract boolean isDirectory();
-	public abstract String display();
+	
+	/*
+	 * Displays full path name
+	 */
+	public abstract String printPath();
+	
+	/*
+	 * Clones the entire subtree to the parent node
+	 */
 	public abstract Node clone(Node parent);
 	
 	public String getName() {
